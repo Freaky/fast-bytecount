@@ -2,7 +2,7 @@ PROG=bench
 SRCS=bench.c bytecount.c
 SSE2_SRCS=bench.c sse2_bytecount.c
 
-CFLAGS=-O2 -msse2 -Weverything
+CFLAGS=-O2 -msse2 -std=gnu99 -Wall
 
 OBJ=${SRCS:.c=.o}
 SSE2OBJ=${SSE2_SRCS:.c=.o}
