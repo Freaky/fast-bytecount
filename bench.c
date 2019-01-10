@@ -46,7 +46,7 @@ int main(void) {
 	}
 
 	char *buf[TEST_FILESIZE];
-	size_t len = read(fd, &buf, TEST_FILESIZE);
+	size_t len = (size_t)read(fd, &buf, TEST_FILESIZE);
 	(void)close(fd);
 
 	if (len != TEST_FILESIZE) {
