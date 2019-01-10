@@ -55,11 +55,13 @@ int main(void) {
 
 	printf("char\tfast\tlibc\tdifference\n");
 
+	int fast_count = 0;
+	int libc_count = 0;
+	double fast_cum = 0;
+	double libc_cum = 0;
 	for (int i=0; i < 255; i++) {
 		double start, end, fast_time, libc_time;
 		int loop = LOOPS;
-		int fast_count = 0;
-		int libc_count = 0;
 
 		printf("%d\t", i);
 
@@ -69,6 +71,7 @@ int main(void) {
 		}
 		end = monotime_ms();
 		fast_time = end - start;
+		fast_cum += fast_time;
 
 		printf("%.3fms\t", fast_time);
 
@@ -79,6 +82,7 @@ int main(void) {
 		}
 		end = monotime_ms();
 		libc_time = end - start;
+		libc_cum += libc_time;
 
 		printf("%.3fms\t", libc_time);
 
@@ -95,6 +99,10 @@ int main(void) {
 			return 66;
 		}
 	}
+
+	printf("Cumulative time: fast=%.2f libc=%.2f\n", fast_cum, libc_cum);
+
+	printf("counted %d / %d\n", fast_count, libc_count);
 
 	return 0;
 }
