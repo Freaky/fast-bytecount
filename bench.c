@@ -14,7 +14,7 @@
 #define LOOPS 512
 
 static size_t
-libc_memchr_count(void *buf, int c, size_t len) {
+libc_memchr_count(uint8_t *buf, uint8_t c, size_t len) {
 	size_t count = 0;
 	uint8_t *ptr = buf;
 	uint8_t *end_ptr = ptr + len;
@@ -46,7 +46,7 @@ int main(void) {
 		return 1;
 	}
 
-	char *buf[TEST_FILESIZE];
+	uint8_t *buf[TEST_FILESIZE];
 	size_t len = (size_t)read(fd, &buf, TEST_FILESIZE);
 	(void)close(fd);
 
@@ -68,7 +68,7 @@ int main(void) {
 
 		start = monotime_ms();
 		while (loop--) {
-			fast_count += bytecount(&buf, i, len);
+			fast_count += bytecount((uint8_t *)buf, i, len);
 		}
 		end = monotime_ms();
 		fast_time = end - start;
@@ -79,7 +79,7 @@ int main(void) {
 		loop = LOOPS;
 		start = monotime_ms();
 		while (loop--) {
-			libc_count += libc_memchr_count(&buf, i, len);
+			libc_count += libc_memchr_count((uint8_t *)buf, i, len);
 		}
 		end = monotime_ms();
 		libc_time = end - start;

@@ -1,2 +1,2 @@
 
-size_t bytecount(void *haystack, int n, size_t len);
+size_t bytecount(uint8_t *haystack, const uint8_t n, size_t len);

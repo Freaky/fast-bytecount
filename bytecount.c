@@ -5,7 +5,7 @@
 #include "bytecount.h"
 
 size_t
-bytecount(void *haystack, int n, size_t len) {
+bytecount(uint8_t *haystack, const uint8_t n, size_t len) {
 	size_t count = 0;
 	uint8_t *ptr = haystack;
 	const uint8_t *end_ptr = ptr + len;
