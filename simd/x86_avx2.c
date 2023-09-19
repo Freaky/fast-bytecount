@@ -1,4 +1,4 @@
-#ifdef WITH_AVX2
+#if (__i386__ || __x86_64__) && defined(WITH_AVX2)
 #include <assert.h>
 #include <stdint.h>
 #include <immintrin.h>

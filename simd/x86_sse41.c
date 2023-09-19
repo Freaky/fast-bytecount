@@ -1,4 +1,4 @@
-#ifdef WITH_SSE4_1
+#if (__i386__ || __x86_64__) && defined(WITH_SSE4_1)
 #include <assert.h>
 #include <stdint.h>
 #include <smmintrin.h>
