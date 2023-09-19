@@ -1,2 +1,3 @@
 
-size_t bytecount(uint8_t *haystack, const uint8_t n, size_t len);
+size_t naive_bytecount(uint8_t *haystack, const uint8_t needle, size_t haystack_len);
+size_t bytecount(uint8_t *haystack, const uint8_t needle, size_t haystack_len);

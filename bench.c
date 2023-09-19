@@ -13,23 +13,6 @@
 #define TEST_FILESIZE 594933
 #define LOOPS 512
 
-static size_t
-libc_memchr_count(uint8_t *buf, uint8_t c, size_t len) {
-	size_t count = 0;
-	uint8_t *ptr = buf;
-	uint8_t *end_ptr = ptr + len;
-
-	while (ptr && ptr < end_ptr) {
-		ptr = memchr(ptr, c, len);
-		if (ptr) {
-			count++;
-			ptr++;
-		}
-	}
-
-	return count;
-}
-
 static double
 monotime_ms() {
 	struct timespec now;
@@ -54,14 +37,14 @@ int main(void) {
 		return 64;
 	}
 
-	printf("char\tfast\tlibc\tdifference\n");
+	printf("char\tfast\tnaive\tdifference\n");
 
 	int fast_count = 0;
 	int libc_count = 0;
 	double fast_cum = 0;
 	double libc_cum = 0;
 	for (int i=0; i < 255; i++) {
-		double start, end, fast_time, libc_time;
+		double start, end, fast_time, naive_time;
 		int loop = LOOPS;
 
 		printf("%d\t", i);
@@ -79,18 +62,18 @@ int main(void) {
 		loop = LOOPS;
 		start = monotime_ms();
 		while (loop--) {
-			libc_count += libc_memchr_count((uint8_t *)buf, i, len);
+			libc_count += naive_bytecount((uint8_t *)buf, i, len);
 		}
 		end = monotime_ms();
-		libc_time = end - start;
-		libc_cum += libc_time;
+		naive_time = end - start;
+		libc_cum += naive_time;
 
-		printf("%.3fms\t", libc_time);
+		printf("%.3fms\t", naive_time);
 
-		if (fast_time < libc_time) {
-			printf("%.2fx faster", libc_time / fast_time);
+		if (fast_time < naive_time) {
+			printf("%.2fx faster", naive_time / fast_time);
 		} else {
-			printf("%.2fx slower", fast_time / libc_time);
+			printf("%.2fx slower", fast_time / naive_time);
 		}
 
 		printf("\n");
