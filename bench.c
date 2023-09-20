@@ -51,7 +51,7 @@ int main(void) {
 
 		start = monotime_ms();
 		while (loop--) {
-			fast_count += bytecount((uint8_t *)buf, i, len);
+			fast_count += bytecount((uint8_t *)buf, (uint8_t)i, len);
 		}
 		end = monotime_ms();
 		fast_time = end - start;
@@ -62,7 +62,7 @@ int main(void) {
 		loop = LOOPS;
 		start = monotime_ms();
 		while (loop--) {
-			libc_count += naive_bytecount((uint8_t *)buf, i, len);
+			libc_count += naive_bytecount((uint8_t *)buf, (uint8_t)i, len);
 		}
 		end = monotime_ms();
 		naive_time = end - start;

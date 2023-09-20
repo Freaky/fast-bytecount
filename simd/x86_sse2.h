@@ -3,5 +3,5 @@
 #include <stdint.h>
 
 size_t
-sse2_bytecount(uint8_t *haystack, const uint8_t n, size_t len);
+sse2_bytecount_impl(uint8_t *haystack, const uint8_t n, size_t len);
 #endif

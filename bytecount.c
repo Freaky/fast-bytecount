@@ -40,7 +40,7 @@ naive_bytecount_32(uint8_t *haystack, const uint8_t needle, size_t haystack_len)
 }
 
 static size_t
-_fallback_bytecount(uint8_t *haystack, const uint8_t needle, size_t haystack_len) {
+fallback_bytecount(uint8_t *haystack, const uint8_t needle, size_t haystack_len) {
 	if (haystack_len < UINT32_MAX) {
 		return naive_bytecount_32(haystack, needle, haystack_len);
 	}
@@ -51,30 +51,30 @@ _fallback_bytecount(uint8_t *haystack, const uint8_t needle, size_t haystack_len
 #ifdef HAVE_AVX2
 __attribute__((target("avx2")))
 static size_t
-_avx2_bytecount(uint8_t *haystack, const uint8_t needle, size_t haystack_len) {
+avx2_bytecount(uint8_t *haystack, const uint8_t needle, size_t haystack_len) {
 	if (haystack_len >= 32) {
-		return avx2_bytecount(haystack, needle, haystack_len);
+		return avx2_bytecount_impl(haystack, needle, haystack_len);
 	}
 
 	#if defined(HAVE_SSE2)
 	if (haystack_len >= 16) {
-		return sse2_bytecount(haystack, needle, haystack_len);
+		return sse2_bytecount_impl(haystack, needle, haystack_len);
 	}
 	#endif
 
-	return _fallback_bytecount(haystack, needle, haystack_len);
+	return fallback_bytecount(haystack, needle, haystack_len);
 }
 #endif
 
 #ifdef HAVE_SSE2
 __attribute__((target("sse2")))
 static size_t
-_sse2_bytecount(uint8_t *haystack, const uint8_t needle, size_t haystack_len) {
+sse2_bytecount(uint8_t *haystack, const uint8_t needle, size_t haystack_len) {
 	if (haystack_len >= 16) {
-		return sse2_bytecount(haystack, needle, haystack_len);
+		return sse2_bytecount_impl(haystack, needle, haystack_len);
 	}
 
-	return _fallback_bytecount(haystack, needle, haystack_len);
+	return fallback_bytecount(haystack, needle, haystack_len);
 }
 #endif
 
@@ -85,17 +85,17 @@ static size_t
 	__builtin_cpu_init();
 	#if HAVE_AVX2
 	if (__builtin_cpu_supports("avx2")) {
-		return _avx2_bytecount;
+		return avx2_bytecount;
 	}
 	#endif
 
 	#if HAVE_SSE2
 	if (__builtin_cpu_supports("sse2")) {
-		return _sse2_bytecount;
+		return sse2_bytecount;
 	}
 	#endif
 
-	return _fallback_bytecount;
+	return fallback_bytecount;
 }
 
 static size_t

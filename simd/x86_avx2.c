@@ -3,6 +3,8 @@
 #include <stdint.h>
 #include <immintrin.h>
 
+#include "x86_avx2.h"
+
 static const uint8_t MASK[] = {
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -12,16 +14,16 @@ static const uint8_t MASK[] = {
 
 __attribute__((target("avx2")))
 size_t
-avx2_bytecount(uint8_t *haystack, const uint8_t needle, size_t haystack_len) {
+avx2_bytecount_impl(uint8_t *haystack, const uint8_t needle, size_t haystack_len) {
 	assert (haystack_len >= 32);
 
-#define SUM_ADD(count, u8s, temp) do {                                       \
-	temp = _mm256_sad_epu8(u8s, _mm256_setzero_si256());                     \
-	count += _mm256_extract_epi64(temp, 0) + _mm256_extract_epi64(temp, 1) + \
-	         _mm256_extract_epi64(temp, 2) + _mm256_extract_epi64(temp, 3);  \
+#define SUM_ADD(count, u8s, temp) do {                                                         \
+	temp = _mm256_sad_epu8(u8s, _mm256_setzero_si256());                                       \
+	count += (size_t) _mm256_extract_epi64(temp, 0) + (size_t) _mm256_extract_epi64(temp, 1) + \
+	         (size_t) _mm256_extract_epi64(temp, 2) + (size_t) _mm256_extract_epi64(temp, 3);  \
 } while(0)
 
-#define mm256_from_offset(slice, offset) _mm256_loadu_si256((__m256i*)(slice + offset))
+#define mm256_from_offset(slice, offset) _mm256_loadu_si256((const void *)(slice + offset))
 
 	size_t offset = 0;
 	size_t count = 0;

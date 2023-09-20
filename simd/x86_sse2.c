@@ -3,6 +3,8 @@
 #include <stdint.h>
 #include <emmintrin.h>
 
+#include "x86_sse2.h"
+
 static const uint8_t MASK[] = {
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 	255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
@@ -10,21 +12,21 @@ static const uint8_t MASK[] = {
 
 __attribute__((target("sse2")))
 size_t
-sse2_bytecount(uint8_t *haystack, const uint8_t needle, size_t haystack_len) {
+sse2_bytecount_impl(uint8_t *haystack, const uint8_t needle, size_t haystack_len) {
 	assert(haystack_len >= 16);
 
-#define mm_from_offset(haystack, offset) _mm_loadu_si128((__m128i *)(haystack + offset))
-#define SUM_ADD(count, u8s, temp) do {                                         \
-    temp = _mm_sad_epu8(u8s, _mm_setzero_si128());                             \
-    count += _mm_cvtsi128_si32(sums) +                                         \
-	         _mm_cvtsi128_si32(_mm_shuffle_epi32(sums, _MM_SHUFFLE(2,2,2,2))); \
+#define mm_from_offset(haystack, offset) _mm_loadu_si128((const void *)(haystack + offset))
+#define SUM_ADD(count, u8s, temp) do {                                                  \
+    temp = _mm_sad_epu8(u8s, _mm_setzero_si128());                                      \
+    count += (size_t) _mm_cvtsi128_si32(sums) +                                         \
+	         (size_t) _mm_cvtsi128_si32(_mm_shuffle_epi32(sums, _MM_SHUFFLE(2,2,2,2))); \
 } while (0)
 
-	const uint8_t *ptr = (uint8_t *)haystack;
+	const uint8_t *ptr = haystack;
 	size_t offset = 0;
 	size_t count = 0;
 
-	const __m128i needles = _mm_set1_epi8((uint8_t)needle);
+	const __m128i needles = _mm_set1_epi8((int8_t)needle);
 	__m128i sums;
 
 	// 4080
