@@ -14,9 +14,10 @@ sse2_bytecount(uint8_t *haystack, const uint8_t needle, size_t haystack_len) {
     assert(haystack_len >= 16);
 
     #define mm_from_offset(haystack, offset) _mm_loadu_si128((__m128i *)(haystack + offset))
-    #define SUM_ADD(count, u8s, temp) do {                                \
-        temp = _mm_sad_epu8(u8s, _mm_setzero_si128());                   \
-        count += _mm_cvtsi128_si32(sums) + _mm_cvtsi128_si32(_mm_shuffle_epi32(sums, 0xaa)); \
+    #define SUM_ADD(count, u8s, temp) do {                                         \
+        temp = _mm_sad_epu8(u8s, _mm_setzero_si128());                             \
+        count += _mm_cvtsi128_si32(sums) +                                         \
+		         _mm_cvtsi128_si32(_mm_shuffle_epi32(sums, _MM_SHUFFLE(2,2,2,2))); \
     } while (0)
 
 	const uint8_t *ptr = (uint8_t *)haystack;
