@@ -1,22 +1,22 @@
-#if (__i386__ || __x86_64__) && defined(WITH_SSE4_1)
+#if (defined(__i386__) || defined(__x86_64__)) && defined(WITH_SSE2)
 #include <assert.h>
 #include <stdint.h>
-#include <smmintrin.h>
+#include <emmintrin.h>
 
 static const uint8_t MASK[] = {
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 	255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
 };
 
-__attribute__((target("sse4.1")))
+__attribute__((target("sse2")))
 size_t
-sse41_bytecount(uint8_t *haystack, const uint8_t needle, size_t haystack_len) {
+sse2_bytecount(uint8_t *haystack, const uint8_t needle, size_t haystack_len) {
     assert(haystack_len >= 16);
 
     #define mm_from_offset(haystack, offset) _mm_loadu_si128((__m128i *)(haystack + offset))
     #define SUM_ADD(count, u8s, temp) do {                                \
         temp = _mm_sad_epu8(u8s, _mm_setzero_si128());                   \
-        count += _mm_extract_epi32(sums, 0) + _mm_extract_epi32(sums, 2); \
+        count += _mm_cvtsi128_si32(sums) + _mm_cvtsi128_si32(_mm_shuffle_epi32(sums, 0xaa)); \
     } while (0)
 
 	const uint8_t *ptr = (uint8_t *)haystack;

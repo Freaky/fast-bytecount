@@ -5,7 +5,7 @@
 #include "bytecount.h"
 
 #include "simd/x86_avx2.h"
-#include "simd/x86_sse41.h"
+#include "simd/x86_sse2.h"
 
 size_t
 naive_bytecount(uint8_t *haystack, const uint8_t needle, size_t haystack_len) {
@@ -49,16 +49,16 @@ _fallback_bytecount(uint8_t *haystack, const uint8_t needle, size_t haystack_len
 }
 
 #ifdef HAVE_AVX2
-__attribute__((target("sse4.1,avx2")))
+__attribute__((target("avx2")))
 static size_t
 _avx2_bytecount(uint8_t *haystack, const uint8_t needle, size_t haystack_len) {
 	if (haystack_len >= 32) {
 		return avx2_bytecount(haystack, needle, haystack_len);
 	}
 
-	#if defined(HAVE_SSE4_1)
+	#if defined(HAVE_SSE2)
 	if (haystack_len >= 16) {
-		return sse41_bytecount(haystack, needle, haystack_len);
+		return sse2_bytecount(haystack, needle, haystack_len);
 	}
 	#endif
 
@@ -66,12 +66,12 @@ _avx2_bytecount(uint8_t *haystack, const uint8_t needle, size_t haystack_len) {
 }
 #endif
 
-#ifdef HAVE_SSE4_1
-__attribute__((target("sse4.1")))
+#ifdef HAVE_SSE2
+__attribute__((target("sse2")))
 static size_t
-_sse41_bytecount(uint8_t *haystack, const uint8_t needle, size_t haystack_len) {
+_sse2_bytecount(uint8_t *haystack, const uint8_t needle, size_t haystack_len) {
 	if (haystack_len >= 16) {
-		return sse41_bytecount(haystack, needle, haystack_len);
+		return sse2_bytecount(haystack, needle, haystack_len);
 	}
 
 	return _fallback_bytecount(haystack, needle, haystack_len);
@@ -89,9 +89,9 @@ static size_t
 	}
 	#endif
 
-	#if HAVE_SSE4_1
-	if (__builtin_cpu_supports("sse4.1")) {
-		return _sse41_bytecount;
+	#if HAVE_SSE2
+	if (__builtin_cpu_supports("sse2")) {
+		return _sse2_bytecount;
 	}
 	#endif
 
