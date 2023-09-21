@@ -1,7 +1,7 @@
 PROG=bench
 SRCS=bench.c bytecount.c simd/x86_avx2.c simd/x86_sse2.c
 
-CFLAGS=	-O3 -g -std=c99 -Wall -Wextra -pedantic -DWITH_SSE2 -DWITH_AVX2
+CFLAGS=	-O3 -g -std=c99 -Wall -Wextra -pedantic
 
 OBJ=${SRCS:.c=.o}
 

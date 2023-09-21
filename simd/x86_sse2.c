@@ -1,4 +1,4 @@
-#if (defined(__i386__) || defined(__x86_64__)) && defined(WITH_SSE2)
+#if (defined(__i386__) || defined(__x86_64__)) && !defined(WITHOUT_SSE2)
 #include <assert.h>
 #include <stdint.h>
 #include <emmintrin.h>
@@ -15,8 +15,8 @@ size_t
 sse2_bytecount_impl(uint8_t *haystack, const uint8_t needle, size_t haystack_len) {
 	assert(haystack_len >= 16);
 
-#define mm_from_offset(haystack, offset) _mm_loadu_si128((const void *)(haystack + offset))
-#define SUM_ADD(count, u8s, temp) do {                                                  \
+#define MM_FROM_OFFSET(haystack, offset) _mm_loadu_si128((const void *)(haystack + offset))
+#define SSE2_SUM_ADD(count, u8s, temp) do {                                                  \
     temp = _mm_sad_epu8(u8s, _mm_setzero_si128());                                      \
     count += (size_t) _mm_cvtsi128_si32(sums) +                                         \
 	         (size_t) _mm_cvtsi128_si32(_mm_shuffle_epi32(sums, _MM_SHUFFLE(2,2,2,2))); \
@@ -36,12 +36,12 @@ sse2_bytecount_impl(uint8_t *haystack, const uint8_t needle, size_t haystack_len
 		for (size_t i=0; i < 255; i++) {
 			counts = _mm_sub_epi8(
 				counts,
-				_mm_cmpeq_epi8(mm_from_offset(ptr, offset), needles)
+				_mm_cmpeq_epi8(MM_FROM_OFFSET(ptr, offset), needles)
 			);
 			offset += 16;
 		}
 
-		SUM_ADD(count, counts, sums);
+		SSE2_SUM_ADD(count, counts, sums);
 	}
 
 	// 2048
@@ -51,12 +51,12 @@ sse2_bytecount_impl(uint8_t *haystack, const uint8_t needle, size_t haystack_len
 		for (size_t i=0; i < 128; i++) {
 			counts = _mm_sub_epi8(
 				counts,
-				_mm_cmpeq_epi8(mm_from_offset(ptr, offset), needles)
+				_mm_cmpeq_epi8(MM_FROM_OFFSET(ptr, offset), needles)
 			);
 			offset += 16;
 		}
 
-		SUM_ADD(count, counts, sums);
+		SSE2_SUM_ADD(count, counts, sums);
 	}
 
 	// 16
@@ -64,7 +64,7 @@ sse2_bytecount_impl(uint8_t *haystack, const uint8_t needle, size_t haystack_len
 	for (size_t i=0; i < ((haystack_len - offset) / 16); i++) {
 		counts = _mm_sub_epi8(
 			counts,
-			_mm_cmpeq_epi8(mm_from_offset(ptr, offset + i * 16), needles)
+			_mm_cmpeq_epi8(MM_FROM_OFFSET(ptr, offset + i * 16), needles)
 		);
 	}
 
@@ -72,12 +72,12 @@ sse2_bytecount_impl(uint8_t *haystack, const uint8_t needle, size_t haystack_len
 		counts = _mm_sub_epi8(
 			counts,
 			_mm_and_si128(
-				_mm_cmpeq_epi8(mm_from_offset(ptr, haystack_len - 16), needles),
-				mm_from_offset(MASK, haystack_len % 16)
+				_mm_cmpeq_epi8(MM_FROM_OFFSET(ptr, haystack_len - 16), needles),
+				MM_FROM_OFFSET(MASK, haystack_len % 16)
 			)
 		);
 	}
-	SUM_ADD(count, counts, sums);
+	SSE2_SUM_ADD(count, counts, sums);
 
 	return count;
 }
