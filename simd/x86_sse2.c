@@ -1,11 +1,11 @@
-#if (defined(__i386__) || defined(__x86_64__)) && !defined(WITHOUT_SSE2)
+#ifndef WITHOUT_SSE2
+#define HAVE_SSE2 1
+
 #include <assert.h>
 #include <stdint.h>
 #include <emmintrin.h>
 
-#include "x86_sse2.h"
-
-static const uint8_t MASK[] = {
+static const uint8_t SSE2_MASK[] = {
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 	255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
 };
@@ -73,7 +73,7 @@ sse2_bytecount_impl(uint8_t *haystack, const uint8_t needle, size_t haystack_len
 			counts,
 			_mm_and_si128(
 				_mm_cmpeq_epi8(MM_FROM_OFFSET(ptr, haystack_len - 16), needles),
-				MM_FROM_OFFSET(MASK, haystack_len % 16)
+				MM_FROM_OFFSET(SSE2_MASK, haystack_len % 16)
 			)
 		);
 	}

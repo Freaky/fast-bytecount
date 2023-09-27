@@ -1,11 +1,11 @@
-#if (defined(__i386__) || defined(__x86_64__)) && !defined(WITHOUT_AVX2)
+#ifndef WITHOUT_AVX2
+#define HAVE_AVX2 1
+
 #include <assert.h>
 #include <stdint.h>
 #include <immintrin.h>
 
-#include "x86_avx2.h"
-
-static const uint8_t MASK[] = {
+static const uint8_t AVX2_MASK[] = {
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 	255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
@@ -69,7 +69,7 @@ avx2_bytecount_impl(uint8_t *haystack, const uint8_t needle, size_t haystack_len
 		    counts,
 		    _mm256_and_si256(
 		        _mm256_cmpeq_epi8(MM256_FROM_OFFSET(haystack, haystack_len - 32), needles),
-		        MM256_FROM_OFFSET(MASK, haystack_len % 32)
+		        MM256_FROM_OFFSET(AVX2_MASK, haystack_len % 32)
 		    )
 		);
 	}
