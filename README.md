@@ -9,7 +9,9 @@ implementation.
 ## Usage
 
 ```
-$ autoreconf
+$ aclocal
+$ autoconf
+$ automake --add-missing
 $ ./configure
 $ make
 $ ./bench
